@@ -1,0 +1,48 @@
+version: "3"
+services:
+  db:
+    image: postgres
+    container_name: post_daily_db
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - db:/var/lib/postgresql/data
+    ports:
+      - "60000:5432"
+  redis:
+    image: redis:7.2.1
+    container_name: post_daily_redis
+    command: redis-server
+    volumes:
+      - redis:/data
+    ports:
+      - 6379
+  web:
+    build: ./ 
+    container_name: post_daily_api
+    ports:
+      - "3001:3005"
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - .:/app
+    command: bundle exec rails s -b 0.0.0.0 -p 3005
+  sidekiq:
+    build: ./
+    container_name: post_daily_sidekiq
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+    ports:
+      - "50000:5432"
+    command: bundle exec sidekiq
+volumes:
+  db:
+  redis:
+networks:
+  default:
+    external: true
+    name: post_daily_network
+    
