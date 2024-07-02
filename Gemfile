@@ -74,3 +74,5 @@ end
 gem "sidekiq", "~> 7.2"
 
 gem 'dotenv-rails', groups: [:development, :test]
+
+gem 'aws-sdk-s3', '~> 1'
